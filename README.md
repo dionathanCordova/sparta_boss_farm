@@ -149,3 +149,6 @@ lib/
 - `CRON_SECRET` é opcional, mas sem ele qualquer pessoa que descobrir a URL
   do seu `/api/cron/check` consegue disparar alertas manualmente — vale a
   pena configurar antes de deixar o link público em algum lugar.
+
+
+https://console.upstash.com/redis
