@@ -1,4 +1,5 @@
-import "dotenv/config";
+import { config } from "dotenv";
+config({ path: ".env.local" });
 import { Client, GatewayIntentBits, Events } from "discord.js";
 import { createRedisStore } from "./store.mjs";
 import { handleProximos, handleBosses, handleRespawnAutocomplete, handleRespawn } from "./handlers.mjs";
