@@ -11,10 +11,28 @@ describe("evaluateBoss", () => {
     expect(result.patch).toEqual({ alertedSpawnVoice: true });
   });
 
+  it("still fires spawn for a boss that spawned a minute ago (inside the staleness window)", () => {
+    const now = new Date("2026-01-01T12:01:00.000Z").getTime();
+    const result = evaluateBoss(boss, now, 10);
+    expect(result.action).toBe("spawn");
+    expect(result.phrase).toContain("nasceu agora");
+    expect(result.patch).toEqual({ alertedSpawnVoice: true });
+  });
+
+  it("stays silent for a stale spawn but still marks it handled", () => {
+    const now = new Date("2026-01-01T12:10:00.000Z").getTime(); // 10 min past spawn
+    const result = evaluateBoss(boss, now, 10);
+    expect(result.action).toBeNull();
+    expect(result.phrase).toBeNull();
+    // The flag is still written so the poll loop stops re-checking it forever.
+    expect(result.patch).toEqual({ alertedSpawnVoice: true });
+  });
+
   it("does not re-fire spawn once alertedSpawnVoice is set", () => {
     const now = new Date("2026-01-01T12:00:01.000Z").getTime();
     const result = evaluateBoss({ ...boss, alertedSpawnVoice: true }, now, 10);
     expect(result.action).toBeNull();
+    expect(result.patch).toBeNull();
   });
 
   it("fires warn inside the warn window", () => {
