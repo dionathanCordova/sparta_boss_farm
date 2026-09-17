@@ -53,8 +53,10 @@ alertedSpawnVoice?: boolean;
 ```
 
 These are tracked separately from the text-alert flags so the two mechanisms
-(Vercel text webhook, Railway voice) trigger independently and don't race on
-a shared boolean. Both flag-pairs (text + voice) are cleared together
+(Vercel text webhook, Railway voice) trigger independently: whichever fires
+first does not suppress the other. Note this is a *semantic* separation only —
+see "Known accepted risk" below for why it does not make the two writers
+safe against each other. Both flag-pairs (text + voice) are cleared together
 whenever `spawnAt` is reset — in the site's existing "definir respawn" flow
 (`updateBoss` call in `app/api/bosses`) and in the new bot's own `/respawn`
 command.
@@ -124,11 +126,19 @@ OAuth scopes and the `Connect` + `Speak` permissions, plus the
 
 ## Known accepted risk
 
-Both runtimes do read-all / patch-one / write-all against the same Redis key
-(`getBosses` → mutate → `saveBosses`). A same-second write from both
-processes could clobber one write. This race already exists in the current
-single-runtime code (e.g. two browser tabs both hitting "definir respawn").
-Not adding locking for a personal-use tracker — YAGNI.
+The separate `*Voice` flags prevent a **semantic** collision: the two
+mechanisms can never disagree about whether a given event was already
+announced, because each reads and writes only its own boolean. They do
+**not** prevent a **write** collision. Both runtimes still do read-all /
+patch-one-or-many / write-all against the same Redis array key (`getBosses`
+→ mutate → `saveBosses`), so a write from one process can still clobber a
+flag the other process wrote in between its own read and write — distinct
+booleans, same document, same last-write-wins race.
+
+This race already exists in the current single-runtime code (e.g. two browser
+tabs both hitting "definir respawn"). The worst case is a missed or repeated
+announcement on one cycle. Not adding locking or per-boss keys for a
+personal-use tracker — YAGNI.
 
 ## Testing plan
 
