@@ -8,6 +8,10 @@ export type Boss = {
   alertedSpawn?: boolean;
   /** true once the "coming soon" Discord alert has been sent for the current spawnAt */
   alertedWarn?: boolean;
+  /** true once the Discord bot's voice "spawn" announcement has played for the current spawnAt */
+  alertedSpawnVoice?: boolean;
+  /** true once the Discord bot's voice "coming soon" announcement has played for the current spawnAt */
+  alertedWarnVoice?: boolean;
 };
 
 /**

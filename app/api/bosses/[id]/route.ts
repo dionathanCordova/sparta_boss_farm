@@ -30,6 +30,8 @@ export async function POST(
     spawnAt,
     alertedSpawn: false,
     alertedWarn: false,
+    alertedSpawnVoice: false,
+    alertedWarnVoice: false,
   });
 
   if (!updated) {
