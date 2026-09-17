@@ -30,3 +30,8 @@ next-env.d.ts
 
 # vercel
 .vercel
+
+# discord-bot (separate npm package)
+discord-bot/node_modules
+discord-bot/.env
+discord-bot/.env*.local
