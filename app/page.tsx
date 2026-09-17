@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { Boss } from "@/lib/bosses";
 import {
   fmtClock,
@@ -56,6 +56,30 @@ export default function Page() {
       clearInterval(tickId);
     };
   }, []);
+
+  // Listener: enquanto a página estiver aberta, checa a cada segundo se algum
+  // boss chegou a zero (ou entrou na janela de aviso) e, se sim, dispara o
+  // /api/cron/check uma única vez por transição (guarda em firedRef pra não
+  // martelar o endpoint a cada tick). Só funciona com a aba aberta; pra
+  // alerta 100% em produção sem depender de aba aberta, use o pinger externo
+  // descrito no README.
+  const firedRef = useRef<Set<string>>(new Set());
+  useEffect(() => {
+    let dueSomething = false;
+    for (const b of bosses) {
+      const msLeft = new Date(b.spawnAt).getTime() - nowTick.getTime();
+      const isDue = msLeft <= 0 || msLeft <= warnMinutes * 60_000;
+      const fireKey = `${b.id}:${b.spawnAt}`;
+      if (isDue && !firedRef.current.has(fireKey)) {
+        firedRef.current.add(fireKey);
+        dueSomething = true;
+      }
+    }
+    if (!dueSomething) return;
+    fetch("/api/cron/check", { cache: "no-store" })
+      .then(() => loadBosses())
+      .catch(() => {});
+  }, [bosses, nowTick, warnMinutes]);
 
   const byServer = useMemo(() => {
     const map = new Map<string, Boss[]>();
