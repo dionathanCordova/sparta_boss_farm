@@ -4,10 +4,30 @@ function pad(n) {
   return n < 10 ? `0${n}` : `${n}`;
 }
 
+// The site and the text webhook (lib/discord.ts) both render times in
+// America/Sao_Paulo. The bot must match, so it cannot use the host-local
+// getHours()/getMinutes() — Railway runs in UTC.
+const SP_TIME_ZONE = "America/Sao_Paulo";
+
+const spTime = new Intl.DateTimeFormat("pt-BR", {
+  hour: "2-digit",
+  minute: "2-digit",
+  timeZone: SP_TIME_ZONE,
+});
+
+// en-CA renders an ISO-like YYYY-MM-DD, so São Paulo calendar days compare
+// as plain strings.
+const spDate = new Intl.DateTimeFormat("en-CA", {
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+  timeZone: SP_TIME_ZONE,
+});
+
 export function fmtSpawnAt(d, today) {
-  const sameDay = d.toDateString() === today.toDateString();
+  const sameDay = spDate.format(d) === spDate.format(today);
   const dayLabel = sameDay ? "hoje" : "amanhã";
-  return `${dayLabel} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  return `${dayLabel} ${spTime.format(d)}`;
 }
 
 export function fmtEta(ms) {
