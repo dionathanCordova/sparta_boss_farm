@@ -68,9 +68,10 @@ export default function Page() {
     let dueSomething = false;
     for (const b of bosses) {
       const msLeft = new Date(b.spawnAt).getTime() - nowTick.getTime();
-      const isDue = msLeft <= 0 || msLeft <= warnMinutes * 60_000;
-      const fireKey = `${b.id}:${b.spawnAt}`;
-      if (isDue && !firedRef.current.has(fireKey)) {
+      const kind = msLeft <= 0 ? "spawn" : msLeft <= warnMinutes * 60_000 ? "warn" : null;
+      if (!kind) continue;
+      const fireKey = `${b.id}:${b.spawnAt}:${kind}`;
+      if (!firedRef.current.has(fireKey)) {
         firedRef.current.add(fireKey);
         dueSomething = true;
       }
