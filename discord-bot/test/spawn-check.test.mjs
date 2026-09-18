@@ -58,7 +58,7 @@ describe("evaluateBoss", () => {
 
 describe("phrase builders", () => {
   it("builds warn phrase", () => {
-    expect(buildWarnPhrase(boss, 5)).toBe("Atenção! Kundum nasce em 5 minutos no Server 1.");
+    expect(buildWarnPhrase(boss, 5)).toBe("Fala Galeraaaaa... Kundum nasce em 5 minutos no Server 1.");
   });
   it("builds spawn phrase", () => {
     expect(buildSpawnPhrase(boss)).toBe("Kundum nasceu agora no Server 1!");

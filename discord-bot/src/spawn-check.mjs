@@ -1,5 +1,5 @@
 export function buildWarnPhrase(boss, minutesLeft) {
-  return `Fala Galeraaaaa... Atenção! ${boss.name} nasce em ${minutesLeft} minutos no ${boss.server}.`;
+  return `Fala Galeraaaaa... ${boss.name} nasce em ${minutesLeft} minutos no ${boss.server}.`;
 }
 
 export function buildSpawnPhrase(boss) {
