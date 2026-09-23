@@ -7,7 +7,7 @@ type AlertKind = "spawn" | "warn";
 export async function sendDiscordAlert(params: {
   kind: AlertKind;
   bossName: string;
-  server: string;
+  servers: string[];
   spawnAt: string; // ISO datetime
   minutesLeft?: number;
 }): Promise<{ ok: boolean; error?: string }> {
@@ -28,7 +28,8 @@ export async function sendDiscordAlert(params: {
       ? `🟢 ${params.bossName} nasceu!`
       : `⏳ ${params.bossName} nasce em ${params.minutesLeft} min`;
 
-  const description = `**Server:** ${params.server}\n**Horário:** ${timeLabel}`;
+  const serverLabel = params.servers.length > 1 ? "Servers" : "Server";
+  const description = `**${serverLabel}:** ${params.servers.join(", ")}\n**Horário:** ${timeLabel}`;
   const color = params.kind === "spawn" ? 0x2f8f74 : 0xb8860b;
 
   try {

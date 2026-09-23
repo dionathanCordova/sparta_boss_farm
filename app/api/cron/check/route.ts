@@ -1,7 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getBosses, saveBosses } from "@/lib/store";
 import { sendDiscordAlert } from "@/lib/discord";
-import { WARN_MINUTES } from "@/lib/bosses";
+import { Boss, WARN_MINUTES } from "@/lib/bosses";
+
+/**
+ * Fixed-schedule bosses (e.g. Medusa) spawn on all 3 servers at the exact
+ * same time — group them so a shared spawn gets ONE alert instead of one
+ * per server. Regular bosses each get their own group (their spawnAt is
+ * set per-kill and rarely lines up with another server's).
+ */
+function groupByAlert(bosses: Boss[]): Boss[][] {
+  const groups = new Map<string, Boss[]>();
+  for (const boss of bosses) {
+    const key = boss.fixedSchedule ? `${boss.name}|${boss.spawnAt}` : `single|${boss.id}`;
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key)!.push(boss);
+  }
+  return Array.from(groups.values());
+}
 
 export const dynamic = "force-dynamic";
 
@@ -33,39 +49,63 @@ export async function GET(req: NextRequest) {
   const alertErrors: { id: string; error: string }[] = [];
   let changed = false;
 
-  for (const boss of bosses) {
-    const spawnMs = new Date(boss.spawnAt).getTime();
+  for (const group of groupByAlert(bosses)) {
+    const rep = group[0];
+    const servers = group.map((b) => b.server);
+    const spawnMs = new Date(rep.spawnAt).getTime();
     const msLeft = spawnMs - now;
 
-    if (msLeft <= 0 && !boss.alertedSpawn) {
+    // A previous run may have alerted some but not all servers in this group
+    // (partial failure, or data from before grouping existed) — sync them so
+    // the group is only ever alerted once per flag going forward.
+    const spawnAlreadySent = group.some((b) => b.alertedSpawn);
+    if (spawnAlreadySent) {
+      for (const b of group) {
+        if (!b.alertedSpawn) {
+          b.alertedSpawn = true;
+          changed = true;
+        }
+      }
+    }
+    const warnAlreadySent = group.some((b) => b.alertedWarn);
+    if (warnAlreadySent) {
+      for (const b of group) {
+        if (!b.alertedWarn) {
+          b.alertedWarn = true;
+          changed = true;
+        }
+      }
+    }
+
+    if (msLeft <= 0 && !spawnAlreadySent) {
       const res = await sendDiscordAlert({
         kind: "spawn",
-        bossName: boss.name,
-        server: boss.server,
-        spawnAt: boss.spawnAt,
+        bossName: rep.name,
+        servers,
+        spawnAt: rep.spawnAt,
       });
       if (res.ok) {
-        boss.alertedSpawn = true;
+        for (const b of group) b.alertedSpawn = true;
         changed = true;
-        alertsSent.push({ id: boss.id, name: boss.name, server: boss.server, kind: "spawn" });
+        alertsSent.push({ id: rep.id, name: rep.name, server: servers.join(", "), kind: "spawn" });
       } else if (res.error) {
-        alertErrors.push({ id: boss.id, error: res.error });
+        alertErrors.push({ id: rep.id, error: res.error });
       }
-    } else if (msLeft > 0 && msLeft <= WARN_MINUTES * 60_000 && !boss.alertedWarn) {
+    } else if (msLeft > 0 && msLeft <= WARN_MINUTES * 60_000 && !warnAlreadySent) {
       const minutesLeft = Math.max(1, Math.ceil(msLeft / 60_000));
       const res = await sendDiscordAlert({
         kind: "warn",
-        bossName: boss.name,
-        server: boss.server,
-        spawnAt: boss.spawnAt,
+        bossName: rep.name,
+        servers,
+        spawnAt: rep.spawnAt,
         minutesLeft,
       });
       if (res.ok) {
-        boss.alertedWarn = true;
+        for (const b of group) b.alertedWarn = true;
         changed = true;
-        alertsSent.push({ id: boss.id, name: boss.name, server: boss.server, kind: "warn" });
+        alertsSent.push({ id: rep.id, name: rep.name, server: servers.join(", "), kind: "warn" });
       } else if (res.error) {
-        alertErrors.push({ id: boss.id, error: res.error });
+        alertErrors.push({ id: rep.id, error: res.error });
       }
     }
   }

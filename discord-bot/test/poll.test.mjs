@@ -179,4 +179,38 @@ describe("createVoicePoller", () => {
     expect(speak).toHaveBeenCalledTimes(2);
     expect(logger.error).toHaveBeenCalledTimes(1);
   });
+
+  it("announces a fixed-schedule boss spawning on 3 servers only once", async () => {
+    const spawnAt = new Date(Date.now() - 5_000).toISOString();
+    const medusas = ["Server 1", "Server 2", "Server 3"].map((server, i) => ({
+      id: `s${i + 1}-medusa`,
+      name: "Medusa",
+      server,
+      spawnAt,
+      fixedSchedule: true,
+    }));
+    const store = fakeStore(medusas);
+    const speak = vi.fn(async () => {});
+    const poll = createVoicePoller({
+      store,
+      speak,
+      resolveGuildId: async () => "g1",
+      voiceChannelId: "c1",
+      warnMinutes: 10,
+      logger: silentLogger,
+    });
+
+    await poll();
+
+    expect(speak).toHaveBeenCalledTimes(1);
+    expect(speak).toHaveBeenCalledWith({
+      channelId: "c1",
+      guildId: "g1",
+      text: "Falahh Galeraaa... Medusa nasceu agora no Server 1, Server 2 e Server 3!",
+    });
+    expect(store.updateBoss).toHaveBeenCalledTimes(3);
+    for (const m of medusas) {
+      expect(store.updateBoss).toHaveBeenCalledWith(m.id, { alertedSpawnVoice: true });
+    }
+  });
 });

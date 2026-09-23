@@ -1,9 +1,19 @@
+// "Server 1" / "Server 1 e Server 2" / "Server 1, Server 2 e Server 3"
+function formatServers(servers) {
+  if (servers.length <= 1) return servers[0] ?? "";
+  return `${servers.slice(0, -1).join(", ")} e ${servers[servers.length - 1]}`;
+}
+
+// boss.servers (plural, for a boss spawning on several servers at once — see
+// evaluateGroup) takes priority; falls back to the single boss.server field.
 export function buildWarnPhrase(boss, minutesLeft) {
-  return `Falahh Galeraaa... ${boss.name} nasce em ${minutesLeft} minutos no ${boss.server}.`;
+  const where = formatServers(boss.servers ?? [boss.server]);
+  return `Falahh Galeraaa... ${boss.name} nasce em ${minutesLeft} minutos no ${where}.`;
 }
 
 export function buildSpawnPhrase(boss) {
-  return `Falahh Galeraaa... ${boss.name} nasceu agora no ${boss.server}!`;
+  const where = formatServers(boss.servers ?? [boss.server]);
+  return `Falahh Galeraaa... ${boss.name} nasceu agora no ${where}!`;
 }
 
 // How long after a spawn we're still willing to say "nasceu agora". Past
@@ -28,7 +38,12 @@ export function evaluateBoss(boss, nowMs, warnMinutes) {
 
   if (msLeft > 0 && msLeft <= warnMinutes * 60_000 && !boss.alertedWarnVoice) {
     const minutesLeft = Math.max(1, Math.ceil(msLeft / 60_000));
-    return { action: "warn", phrase: buildWarnPhrase(boss, minutesLeft), patch: { alertedWarnVoice: true } };
+    return {
+      action: "warn",
+      phrase: buildWarnPhrase(boss, minutesLeft),
+      patch: { alertedWarnVoice: true },
+      minutesLeft,
+    };
   }
 
   return { action: null, phrase: null, patch: null };
