@@ -12,7 +12,43 @@ export type Boss = {
   alertedSpawnVoice?: boolean;
   /** true once the Discord bot's voice "coming soon" announcement has played for the current spawnAt */
   alertedWarnVoice?: boolean;
+  /**
+   * true for bosses on a fixed clock (e.g. Medusa) whose spawnAt is computed
+   * automatically instead of being set by hand — see nextMedusaSpawn().
+   */
+  fixedSchedule?: boolean;
 };
+
+/** Local hours (fixed -03:00) at which Medusa spawns; she pauses right after 00:00, back at 10:00. */
+const MEDUSA_HOURS = [10, 14, 18, 22, 0];
+const MEDUSA_TZ_OFFSET_MIN = -180; // -03:00, matches the rest of the seed data
+
+function pad(n: number) {
+  return String(n).padStart(2, "0");
+}
+
+/** Next Medusa spawn (4h cadence, paused 00:00–10:00) strictly after `now`. */
+export function nextMedusaSpawn(now: Date): Date {
+  const shifted = new Date(now.getTime() + MEDUSA_TZ_OFFSET_MIN * 60_000);
+  const y = shifted.getUTCFullYear();
+  const m = shifted.getUTCMonth() + 1;
+  const d = shifted.getUTCDate();
+
+  const candidates: Date[] = [];
+  for (const dayOffset of [0, 1]) {
+    const base = new Date(Date.UTC(y, m - 1, d + dayOffset));
+    const by = base.getUTCFullYear();
+    const bm = base.getUTCMonth() + 1;
+    const bd = base.getUTCDate();
+    for (const h of MEDUSA_HOURS) {
+      candidates.push(new Date(`${by}-${pad(bm)}-${pad(bd)}T${pad(h)}:00:00-03:00`));
+    }
+  }
+  candidates.sort((a, b) => a.getTime() - b.getTime());
+  return candidates.find((c) => c.getTime() > now.getTime()) ?? candidates[candidates.length - 1];
+}
+
+const MEDUSA_INITIAL_SPAWN = nextMedusaSpawn(new Date()).toISOString();
 
 /**
  * Seed data. These timestamps are just placeholders carried over from the
@@ -29,6 +65,7 @@ export const SEED_BOSSES: Boss[] = [
   { id: "s1-ferrea", server: "Server 1", name: "Ferrea", spawnAt: "2026-09-15T03:53:00-03:00" },
   { id: "s1-nix", server: "Server 1", name: "Nix", spawnAt: "2026-09-15T07:51:00-03:00" },
   { id: "s1-god", server: "Server 1", name: "God", spawnAt: "2026-09-14T16:58:00-03:00" },
+  { id: "s1-medusa", server: "Server 1", name: "Medusa", spawnAt: MEDUSA_INITIAL_SPAWN, fixedSchedule: true },
 
   // Server 2
   { id: "s2-kundum", server: "Server 2", name: "Kundum", spawnAt: "2026-09-15T04:51:00-03:00" },
@@ -38,6 +75,7 @@ export const SEED_BOSSES: Boss[] = [
   { id: "s2-nix-2", server: "Server 2", name: "Nix", spawnAt: "2026-09-15T03:50:00-03:00" },
   { id: "s2-ferrea", server: "Server 2", name: "Ferrea", spawnAt: "2026-09-14T23:53:00-03:00" },
   { id: "s2-god", server: "Server 2", name: "God", spawnAt: "2026-09-15T01:44:00-03:00" },
+  { id: "s2-medusa", server: "Server 2", name: "Medusa", spawnAt: MEDUSA_INITIAL_SPAWN, fixedSchedule: true },
 
   // Server 3
   { id: "s3-kundum", server: "Server 3", name: "Kundum", spawnAt: "2026-09-14T10:51:00-03:00" },
@@ -47,6 +85,7 @@ export const SEED_BOSSES: Boss[] = [
   { id: "s3-ferrea", server: "Server 3", name: "Ferrea", spawnAt: "2026-09-14T23:54:00-03:00" },
   { id: "s3-nix", server: "Server 3", name: "Nix", spawnAt: "2026-09-15T03:51:00-03:00" },
   { id: "s3-god", server: "Server 3", name: "God", spawnAt: "2026-09-14T14:04:00-03:00" },
+  { id: "s3-medusa", server: "Server 3", name: "Medusa", spawnAt: MEDUSA_INITIAL_SPAWN, fixedSchedule: true },
 ];
 
 export const SERVERS = ["Server 1", "Server 2", "Server 3"];
