@@ -47,6 +47,23 @@ async function writeLocalFile(bosses: Boss[]): Promise<boolean> {
 }
 
 /**
+ * Persisted data predates bosses added to SEED_BOSSES later on (e.g.
+ * Medusa) — new code doesn't retroactively appear in an already-seeded
+ * store otherwise. Append any seed boss whose id isn't stored yet, leaving
+ * existing bosses' spawnAt/flags untouched.
+ */
+function mergeNewSeedBosses(bosses: Boss[]): boolean {
+  let changed = false;
+  for (const seed of SEED_BOSSES) {
+    if (!bosses.some((b) => b.id === seed.id)) {
+      bosses.push(seed);
+      changed = true;
+    }
+  }
+  return changed;
+}
+
+/**
  * Fixed-schedule bosses (e.g. Medusa) never get a manual "definir respawn"
  * update. Once the spawn alert for the current cycle has gone out, roll
  * spawnAt forward to the next slot on its fixed clock and reset the alert
@@ -94,10 +111,12 @@ export async function getBosses(): Promise<Boss[]> {
     }
   }
 
-  if (!freshlySeeded && rollForwardFixedSchedules(bosses, new Date())) {
+  if (freshlySeeded) {
     await saveBosses(bosses);
-  } else if (freshlySeeded) {
-    await saveBosses(bosses);
+  } else {
+    const merged = mergeNewSeedBosses(bosses);
+    const rolled = rollForwardFixedSchedules(bosses, new Date());
+    if (merged || rolled) await saveBosses(bosses);
   }
 
   return bosses;
