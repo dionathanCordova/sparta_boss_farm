@@ -50,6 +50,26 @@ describe("handleProximos", () => {
     const res = await handleProximos(fakeStore([]), now);
     expect(res.embeds[0].description).toBe("Nenhum boss com horário futuro definido ainda.");
   });
+
+  it("also surfaces a fixed-schedule boss's next occurrence, not just the stored one", async () => {
+    // now = 2026-01-01T10:00:00Z = 07:00 -03:00; next Medusa slot stored is
+    // 10:00 -03:00 (13:00Z) — but she also spawns again 14:00 -03:00 (17:00Z)
+    // same day, which should show up too since nothing else fills the list.
+    const store = fakeStore([
+      {
+        id: "s1-medusa",
+        name: "Medusa",
+        server: "Server 1",
+        spawnAt: "2026-01-01T13:00:00.000Z",
+        fixedSchedule: true,
+      },
+    ]);
+    const res = await handleProximos(store, now);
+    const lines = res.embeds[0].description.split("\n");
+    expect(lines.length).toBeGreaterThan(1);
+    expect(lines[0]).toContain("hoje");
+    expect(lines[1]).toContain("Medusa");
+  });
 });
 
 describe("handleBosses", () => {

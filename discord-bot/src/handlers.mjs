@@ -1,11 +1,21 @@
 import { bossLine, fmtEta, fmtSpawnAt, parseDurationToMinutes } from "./format.mjs";
+import { expandFixedSchedule } from "./fixed-schedule.mjs";
 
 const EMBED_COLOR = 0xa3720f;
 const SUCCESS_COLOR = 0x2f8f74;
 
+// A fixed-schedule boss (e.g. Medusa) only stores its next occurrence, which
+// would otherwise hide the fact it spawns again a few hours later — expand
+// it so /proximos surfaces those too. 6 occurrences comfortably covers the
+// 15-slot window even right after a pause (4h cadence = 24h of coverage).
+const FIXED_SCHEDULE_LOOKAHEAD = 6;
+
 export async function handleProximos(store, now) {
   const bosses = await store.getBosses();
-  const upcoming = bosses
+  const expanded = bosses.flatMap((b) =>
+    b.fixedSchedule ? expandFixedSchedule(b, FIXED_SCHEDULE_LOOKAHEAD) : [b]
+  );
+  const upcoming = expanded
     .filter((b) => new Date(b.spawnAt).getTime() - now.getTime() > 0)
     .sort((a, b) => new Date(a.spawnAt).getTime() - new Date(b.spawnAt).getTime())
     .slice(0, 15);
