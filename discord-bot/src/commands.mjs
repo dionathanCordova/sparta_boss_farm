@@ -7,7 +7,7 @@ const SERVER_CHOICES = [
 export const COMMANDS = [
   {
     name: "proximos",
-    description: "Mostra os 20 bosses mais próximos de nascer, em todos os servers",
+    description: "Mostra os 15 bosses mais próximos de nascer, em todos os servers",
     type: 1,
   },
   {
