@@ -19,7 +19,7 @@ function fakeStore(bosses) {
 const now = new Date("2026-01-01T10:00:00.000Z");
 
 describe("handleProximos", () => {
-  it("lists up to 5 future bosses sorted by soonest", async () => {
+  it("lists up to 20 future bosses sorted by soonest", async () => {
     const store = fakeStore([
       { id: "a", name: "A", server: "Server 1", spawnAt: "2026-01-01T12:00:00.000Z" },
       { id: "b", name: "B", server: "Server 1", spawnAt: "2026-01-01T11:00:00.000Z" },
@@ -30,6 +30,20 @@ describe("handleProximos", () => {
     expect(lines).toHaveLength(2);
     expect(lines[0]).toContain("B");
     expect(lines[1]).toContain("A");
+  });
+
+  it("caps the list at 20 even with more future bosses", async () => {
+    const bosses = Array.from({ length: 25 }, (_, i) => ({
+      id: `b${i}`,
+      name: `Boss ${i}`,
+      server: "Server 1",
+      spawnAt: new Date(now.getTime() + (i + 1) * 60_000).toISOString(),
+    }));
+    const res = await handleProximos(fakeStore(bosses), now);
+    const lines = res.embeds[0].description.split("\n");
+    expect(lines).toHaveLength(20);
+    expect(lines[0]).toContain("Boss 0");
+    expect(lines[19]).toContain("Boss 19");
   });
 
   it("shows fallback message when nothing upcoming", async () => {

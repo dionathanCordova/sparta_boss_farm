@@ -318,6 +318,11 @@ ul.bosses {
   white-space: nowrap;
   flex: 0 0 auto;
 }
+.fixed-schedule-note {
+  font-size: 11px;
+  color: var(--text-2);
+  font-style: italic;
+}
 .reset-input {
   width: 88px;
   flex: 0 0 88px;

@@ -66,7 +66,7 @@ describe("createVoicePoller", () => {
     expect(speak).toHaveBeenCalledWith({
       channelId: "c1",
       guildId: "g1",
-      text: "Kundum nasceu agora no Server 1!",
+      text: "Falahh Galeraaa... Kundum nasceu agora no Server 1!",
     });
   });
 
@@ -162,7 +162,7 @@ describe("createVoicePoller", () => {
     const b = { ...justSpawned(), id: "b", name: "B" };
     const store = fakeStore([a, b]);
     const speak = vi.fn(async ({ text }) => {
-      if (text.startsWith("A")) throw new Error("voice ws closed");
+      if (text.includes(a.name)) throw new Error("voice ws closed");
     });
     const logger = { error: vi.fn() };
     const poll = createVoicePoller({

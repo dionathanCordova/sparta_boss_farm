@@ -1,9 +1,9 @@
 export function buildWarnPhrase(boss, minutesLeft) {
-  return `Fala Galeraaaaa... ${boss.name} nasce em ${minutesLeft} minutos no ${boss.server}.`;
+  return `Falahh Galeraaa... ${boss.name} nasce em ${minutesLeft} minutos no ${boss.server}.`;
 }
 
 export function buildSpawnPhrase(boss) {
-  return `Fala Galeraaaaa... ${boss.name} nasceu agora no ${boss.server}!`;
+  return `Falahh Galeraaa... ${boss.name} nasceu agora no ${boss.server}!`;
 }
 
 // How long after a spawn we're still willing to say "nasceu agora". Past

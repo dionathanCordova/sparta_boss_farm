@@ -8,7 +8,7 @@ export async function handleProximos(store, now) {
   const upcoming = bosses
     .filter((b) => new Date(b.spawnAt).getTime() - now.getTime() > 0)
     .sort((a, b) => new Date(a.spawnAt).getTime() - new Date(b.spawnAt).getTime())
-    .slice(0, 5);
+    .slice(0, 20);
 
   const description = upcoming.length
     ? upcoming.map((b) => bossLine(b, now)).join("\n")

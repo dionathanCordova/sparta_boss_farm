@@ -196,36 +196,42 @@ export default function Page() {
                       <span className={`pill ${st.cls}`}>{st.label}</span>
                     </div>
                     <div className="reset-row">
-                      <div className="reset-left">
-                        <label htmlFor={`${b.id}-input`}>respawn:</label>
-                        <input
-                          id={`${b.id}-input`}
-                          className="reset-input"
-                          type="text"
-                          inputMode="text"
-                          placeholder="ex. 3:11"
-                          aria-label={`Tempo restante até ${b.name} nascer novamente`}
-                          value={inputs[b.id] ?? ""}
-                          onChange={(e) =>
-                            setInputs((s) => ({ ...s, [b.id]: e.target.value }))
-                          }
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") {
-                              e.preventDefault();
-                              handleSubmit(b);
+                      {b.fixedSchedule ? (
+                        <div className="reset-left">
+                          <span className="fixed-schedule-note">horário fixo — automático</span>
+                        </div>
+                      ) : (
+                        <div className="reset-left">
+                          <label htmlFor={`${b.id}-input`}>respawn:</label>
+                          <input
+                            id={`${b.id}-input`}
+                            className="reset-input"
+                            type="text"
+                            inputMode="text"
+                            placeholder="ex. 3:11"
+                            aria-label={`Tempo restante até ${b.name} nascer novamente`}
+                            value={inputs[b.id] ?? ""}
+                            onChange={(e) =>
+                              setInputs((s) => ({ ...s, [b.id]: e.target.value }))
                             }
-                          }}
-                          style={errorFlash[b.id] ? { borderColor: "var(--urgent)" } : undefined}
-                        />
-                        <button
-                          type="button"
-                          className="reset-btn"
-                          disabled={pending[b.id]}
-                          onClick={() => handleSubmit(b)}
-                        >
-                          definir respawn
-                        </button>
-                      </div>
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") {
+                                e.preventDefault();
+                                handleSubmit(b);
+                              }
+                            }}
+                            style={errorFlash[b.id] ? { borderColor: "var(--urgent)" } : undefined}
+                          />
+                          <button
+                            type="button"
+                            className="reset-btn"
+                            disabled={pending[b.id]}
+                            onClick={() => handleSubmit(b)}
+                          >
+                            definir respawn
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </li>
                 );
