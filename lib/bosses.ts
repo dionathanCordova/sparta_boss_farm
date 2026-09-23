@@ -51,6 +51,23 @@ export function nextMedusaSpawn(now: Date): Date {
 const MEDUSA_INITIAL_SPAWN = nextMedusaSpawn(new Date()).toISOString();
 
 /**
+ * Fixed-schedule bosses only ever have ONE stored spawnAt (their next
+ * occurrence), which hides the fact they spawn again a few hours later.
+ * Expand a boss into its next `count` occurrences for display in
+ * "próximos a nascer"-style lists.
+ */
+export function expandFixedSchedule(boss: Boss, count: number): Boss[] {
+  const occurrences: Boss[] = [boss];
+  let cursor = new Date(boss.spawnAt);
+  for (let i = 1; i < count; i++) {
+    const next = nextMedusaSpawn(cursor);
+    occurrences.push({ ...boss, spawnAt: next.toISOString() });
+    cursor = next;
+  }
+  return occurrences;
+}
+
+/**
  * Seed data. These timestamps are just placeholders carried over from the
  * original tracker — the moment you deploy, open the app and click
  * "definir respawn" on each boss to set real, current values. From then on

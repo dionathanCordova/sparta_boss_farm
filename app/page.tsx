@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { Boss } from "@/lib/bosses";
+import { expandFixedSchedule, type Boss } from "@/lib/bosses";
 import {
   fmtClock,
   fmtDateLabel,
@@ -95,7 +95,8 @@ export default function Page() {
   }, [bosses]);
 
   const nextUp = useMemo(() => {
-    return bosses
+    const expanded = bosses.flatMap((b) => (b.fixedSchedule ? expandFixedSchedule(b, 6) : [b]));
+    return expanded
       .filter((b) => new Date(b.spawnAt).getTime() - nowTick.getTime() > 0)
       .sort((a, b) => new Date(a.spawnAt).getTime() - new Date(b.spawnAt).getTime())
       .slice(0, 10);
@@ -164,7 +165,7 @@ export default function Page() {
         {nextUp.map((b) => {
           const ms = new Date(b.spawnAt).getTime() - nowTick.getTime();
           return (
-            <div className="nextup-card" key={b.id}>
+            <div className="nextup-card" key={`${b.id}@${b.spawnAt}`}>
               <div className="srv">{b.server}</div>
               <div className="boss">{b.name}</div>
               <div className="eta">{fmtEta(ms) ?? "00:00:00"}</div>

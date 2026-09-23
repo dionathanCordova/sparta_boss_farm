@@ -147,8 +147,23 @@ header.top {
   display: flex;
   gap: 12px;
   overflow-x: auto;
-  padding-bottom: 4px;
+  padding-bottom: 14px;
   margin-bottom: 36px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent-soft) transparent;
+}
+.nextup::-webkit-scrollbar {
+  height: 6px;
+}
+.nextup::-webkit-scrollbar-track {
+  background: transparent;
+}
+.nextup::-webkit-scrollbar-thumb {
+  background: var(--accent-soft);
+  border-radius: 999px;
+}
+.nextup::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
 }
 .nextup-card {
   flex: 0 0 auto;
