@@ -66,7 +66,7 @@ describe("createVoicePoller", () => {
     expect(speak).toHaveBeenCalledWith({
       channelId: "c1",
       guildId: "g1",
-      text: "Falahh Galeraaa... Kundum nasceu agora no Server 1!",
+      text: "Fala Galeraaa... Kundum nasceu agora no Server 1!",
     });
   });
 
@@ -206,7 +206,7 @@ describe("createVoicePoller", () => {
     expect(speak).toHaveBeenCalledWith({
       channelId: "c1",
       guildId: "g1",
-      text: "Falahh Galeraaa... Medusa nasceu agora no Server 1, Server 2 e Server 3!",
+      text: "Fala Galeraaa... Medusa nasceu agora no Server 1, Server 2 e Server 3!",
     });
     expect(store.updateBoss).toHaveBeenCalledTimes(3);
     for (const m of medusas) {

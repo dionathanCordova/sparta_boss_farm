@@ -11,6 +11,8 @@
   --urgent-soft: #f6dcd5;
   --soon: #a3720f;
   --soon-soft: #f1e2bf;
+  --available: #c2570f;
+  --available-soft: #fbe2c8;
   --safe: #26785f;
   --safe-soft: #d9ede6;
   --shadow: 0 1px 2px rgba(20, 24, 32, 0.06), 0 8px 24px -12px rgba(20, 24, 32, 0.18);
@@ -30,6 +32,8 @@
     --urgent-soft: #3a1f1a;
     --soon: #d9ab52;
     --soon-soft: #3a2f18;
+    --available: #f2934a;
+    --available-soft: #3d2712;
     --safe: #59b797;
     --safe-soft: #17332a;
     --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 28px -14px rgba(0, 0, 0, 0.6);
@@ -48,6 +52,8 @@
   --urgent-soft: #3a1f1a;
   --soon: #d9ab52;
   --soon-soft: #3a2f18;
+  --available: #f2934a;
+  --available-soft: #3d2712;
   --safe: #59b797;
   --safe-soft: #17332a;
   --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 28px -14px rgba(0, 0, 0, 0.6);
@@ -302,6 +308,10 @@ ul.bosses {
 .pill.soon {
   background: var(--soon-soft);
   color: var(--soon);
+}
+.pill.available {
+  background: var(--available-soft);
+  color: var(--available);
 }
 .pill.safe {
   background: var(--safe-soft);

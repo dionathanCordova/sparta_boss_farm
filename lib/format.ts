@@ -27,10 +27,10 @@ export function fmtEta(ms: number): string | null {
   return `${pad(h)}:${pad(m)}:${pad(s)}`;
 }
 
-export type Status = { cls: "urgent" | "soon" | "safe"; label: string };
+export type Status = { cls: "available" | "urgent" | "soon" | "safe"; label: string };
 
 export function statusFor(ms: number): Status {
-  if (ms <= 0) return { cls: "safe", label: "disponível" };
+  if (ms <= 0) return { cls: "available", label: "disponível" };
   if (ms <= 60 * 60 * 1000) return { cls: "urgent", label: "em breve" };
   if (ms <= 3 * 60 * 60 * 1000) return { cls: "soon", label: "aproximando" };
   return { cls: "safe", label: "programado" };

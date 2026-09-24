@@ -49,14 +49,19 @@ async function writeLocalFile(bosses: Boss[]): Promise<boolean> {
 /**
  * Persisted data predates bosses added to SEED_BOSSES later on (e.g.
  * Medusa) — new code doesn't retroactively appear in an already-seeded
- * store otherwise. Append any seed boss whose id isn't stored yet, leaving
- * existing bosses' spawnAt/flags untouched.
+ * store otherwise. Append any seed boss whose id isn't stored yet, and pick
+ * up name changes for ids that already exist (e.g. a rename), leaving
+ * spawnAt/flags untouched either way.
  */
-function mergeNewSeedBosses(bosses: Boss[]): boolean {
+function reconcileWithSeed(bosses: Boss[]): boolean {
   let changed = false;
   for (const seed of SEED_BOSSES) {
-    if (!bosses.some((b) => b.id === seed.id)) {
+    const existing = bosses.find((b) => b.id === seed.id);
+    if (!existing) {
       bosses.push(seed);
+      changed = true;
+    } else if (existing.name !== seed.name) {
+      existing.name = seed.name;
       changed = true;
     }
   }
@@ -114,7 +119,7 @@ export async function getBosses(): Promise<Boss[]> {
   if (freshlySeeded) {
     await saveBosses(bosses);
   } else {
-    const merged = mergeNewSeedBosses(bosses);
+    const merged = reconcileWithSeed(bosses);
     const rolled = rollForwardFixedSchedules(bosses, new Date());
     if (merged || rolled) await saveBosses(bosses);
   }

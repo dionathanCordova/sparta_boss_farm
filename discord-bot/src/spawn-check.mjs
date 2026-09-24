@@ -8,12 +8,12 @@ function formatServers(servers) {
 // evaluateGroup) takes priority; falls back to the single boss.server field.
 export function buildWarnPhrase(boss, minutesLeft) {
   const where = formatServers(boss.servers ?? [boss.server]);
-  return `Falahh Galeraaa... ${boss.name} nasce em ${minutesLeft} minutos no ${where}.`;
+  return `Fala Galeraaa... ${boss.name} nasce em ${minutesLeft} minutos no ${where}.`;
 }
 
 export function buildSpawnPhrase(boss) {
   const where = formatServers(boss.servers ?? [boss.server]);
-  return `Falahh Galeraaa... ${boss.name} nasceu agora no ${where}!`;
+  return `Fala Galeraaa... ${boss.name} nasceu agora no ${where}!`;
 }
 
 // How long after a spawn we're still willing to say "nasceu agora". Past
