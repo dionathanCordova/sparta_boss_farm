@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { expandFixedSchedule, type Boss } from "@/lib/bosses";
+import { expandFixedSchedule, UNIQUE_BOSS_MAP, type Boss } from "@/lib/bosses";
 import {
   fmtClock,
   fmtDateLabel,
@@ -85,6 +85,7 @@ export default function Page() {
   const byServer = useMemo(() => {
     const map = new Map<string, Boss[]>();
     for (const b of bosses) {
+      if (b.server === UNIQUE_BOSS_MAP) continue;
       if (!map.has(b.server)) map.set(b.server, []);
       map.get(b.server)!.push(b);
     }
@@ -93,6 +94,11 @@ export default function Page() {
     }
     return map;
   }, [bosses]);
+
+  const uniqueBosses = useMemo(
+    () => bosses.filter((b) => b.server === UNIQUE_BOSS_MAP),
+    [bosses]
+  );
 
   const nextUp = useMemo(() => {
     const expanded = bosses.flatMap((b) => (b.fixedSchedule ? expandFixedSchedule(b, 6) : [b]));
@@ -121,6 +127,27 @@ export default function Page() {
         const data: { boss: Boss } = await res.json();
         setBosses((prev) => prev.map((b) => (b.id === boss.id ? data.boss : b)));
         setInputs((s) => ({ ...s, [boss.id]: "" }));
+      } else {
+        setErrorFlash((s) => ({ ...s, [boss.id]: true }));
+        setTimeout(() => setErrorFlash((s) => ({ ...s, [boss.id]: false })), 900);
+      }
+    } finally {
+      setPending((s) => ({ ...s, [boss.id]: false }));
+    }
+  }
+
+  async function handleQuickReset(boss: Boss) {
+    const minutes = (boss.fixedRespawnHours ?? 12) * 60;
+    setPending((s) => ({ ...s, [boss.id]: true }));
+    try {
+      const res = await fetch(`/api/bosses/${boss.id}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ minutes }),
+      });
+      if (res.ok) {
+        const data: { boss: Boss } = await res.json();
+        setBosses((prev) => prev.map((b) => (b.id === boss.id ? data.boss : b)));
       } else {
         setErrorFlash((s) => ({ ...s, [boss.id]: true }));
         setTimeout(() => setErrorFlash((s) => ({ ...s, [boss.id]: false })), 900);
@@ -174,6 +201,52 @@ export default function Page() {
           );
         })}
       </div>
+
+      {uniqueBosses.length > 0 && (
+        <>
+          <p className="eyebrow">Boss único — Mapa LOT</p>
+          <div className="board unique-board">
+            <div className="server unique-server">
+              <div className="server-head">
+                <h2>LOT</h2>
+                <span className="count">
+                  {uniqueBosses.length} boss{uniqueBosses.length > 1 ? "es" : ""}
+                </span>
+              </div>
+              <ul className="bosses">
+                {uniqueBosses.map((b) => {
+                  const ms = new Date(b.spawnAt).getTime() - nowTick.getTime();
+                  const st = statusFor(ms);
+                  return (
+                    <li className="boss-row" key={b.id}>
+                      <div className="name-col">
+                        <div className="boss-name">{b.name}</div>
+                        <div className="spawn-at">{fmtSpawnAt(new Date(b.spawnAt), nowTick)}</div>
+                      </div>
+                      <div className="status-col">
+                        <div className="eta">{fmtEta(ms) ?? "00:00:00"}</div>
+                        <span className={`pill ${st.cls}`}>{st.label}</span>
+                      </div>
+                      <div className="reset-row">
+                        <div className="reset-left">
+                          <button
+                            type="button"
+                            className="reset-btn"
+                            disabled={pending[b.id]}
+                            onClick={() => handleQuickReset(b)}
+                          >
+                            matei — resetar {b.fixedRespawnHours ?? 12}h
+                          </button>
+                        </div>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          </div>
+        </>
+      )}
 
       <div className="board">
         {Array.from(byServer.entries()).map(([server, list]) => (

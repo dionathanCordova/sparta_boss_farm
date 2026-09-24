@@ -17,7 +17,16 @@ export type Boss = {
    * automatically instead of being set by hand — see nextMedusaSpawn().
    */
   fixedSchedule?: boolean;
+  /**
+   * For a unique boss with a fixed respawn timer (e.g. Erohin): the number
+   * of hours the "matei — resetar" button sets spawnAt to, counting from
+   * the moment it's clicked.
+   */
+  fixedRespawnHours?: number;
 };
+
+/** Pseudo-server used for unique, map-bound bosses that don't repeat per server (e.g. Erohin, map LOT). */
+export const UNIQUE_BOSS_MAP = "LOT";
 
 /** Local hours (fixed -03:00) at which Medusa spawns; she pauses right after 00:00, back at 10:00. */
 const MEDUSA_HOURS = [10, 14, 18, 22, 0];
@@ -103,6 +112,15 @@ export const SEED_BOSSES: Boss[] = [
   { id: "s3-nix", server: "Server 3", name: "Nix", spawnAt: "2026-09-15T03:51:00-03:00" },
   { id: "s3-god", server: "Server 3", name: "God", spawnAt: "2026-09-14T14:04:00-03:00" },
   { id: "s3-medusa", server: "Server 3", name: "Medusa", spawnAt: MEDUSA_INITIAL_SPAWN, fixedSchedule: true },
+
+  // Boss único — não repete por server, só existe no mapa LOT
+  {
+    id: "lot-erohin",
+    server: UNIQUE_BOSS_MAP,
+    name: "Erohin",
+    spawnAt: new Date(Date.now() + 12 * 60 * 60 * 1000).toISOString(),
+    fixedRespawnHours: 12,
+  },
 ];
 
 export const SERVERS = ["Server 1", "Server 2", "Server 3"];

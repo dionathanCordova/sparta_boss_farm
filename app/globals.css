@@ -216,12 +216,19 @@ header.top {
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 20px;
 }
+.unique-board {
+  grid-template-columns: minmax(0, 420px);
+  margin-bottom: 36px;
+}
 .server {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 14px;
   box-shadow: var(--shadow);
   overflow: hidden;
+}
+.unique-server {
+  border-color: var(--accent);
 }
 .server-head {
   padding: 16px 18px;
