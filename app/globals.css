@@ -444,3 +444,129 @@ footer.page-footer {
     display: none;
   }
 }
+
+.auth-nav {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 14px;
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 14px 20px 0;
+  font-size: 12.5px;
+}
+.auth-nav a {
+  color: var(--text-2);
+  text-decoration: underline;
+}
+.auth-nav a:hover {
+  color: var(--text);
+}
+.logout-btn {
+  font-family: "IBM Plex Sans", sans-serif;
+  font-size: 12.5px;
+  background: none;
+  border: none;
+  color: var(--text-2);
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+}
+.logout-btn:hover {
+  color: var(--text);
+}
+
+.login-wrap {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.login-card {
+  width: 100%;
+  max-width: 340px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  padding: 28px 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.login-card h1 {
+  font-family: "Cinzel", serif;
+  font-weight: 700;
+  font-size: 22px;
+  margin: 0;
+}
+.login-sub {
+  margin: 0 0 10px;
+  color: var(--text-2);
+  font-size: 13px;
+}
+.login-card label {
+  font-size: 11px;
+  color: var(--text-2);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.login-card input {
+  font-family: "IBM Plex Sans", sans-serif;
+  font-size: 14px;
+  background: var(--surface-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 9px 11px;
+  margin-bottom: 4px;
+}
+.login-card input:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+.login-card button {
+  margin-top: 10px;
+  font-family: "IBM Plex Sans", sans-serif;
+  font-size: 13.5px;
+  font-weight: 600;
+  background: var(--accent);
+  color: var(--surface);
+  border: none;
+  border-radius: 6px;
+  padding: 10px;
+  cursor: pointer;
+}
+.login-card button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.login-error {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--urgent);
+}
+
+.admin-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 480px;
+}
+.admin-card label {
+  font-size: 11px;
+  color: var(--text-2);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.admin-success {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--safe);
+}

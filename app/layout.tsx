@@ -1,11 +1,27 @@
 import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/next";
+import { cookies } from "next/headers";
+import { SESSION_COOKIE_NAME, verifySessionCookieValue } from "@/lib/session";
+import { LogoutButton } from "./logout-button";
 import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Spawn dos Bosses",
   description: "Rastreador de respawn de bosses com alerta no Discord.",
 };
+
+async function AuthNav() {
+  const cookieStore = await cookies();
+  const session = verifySessionCookieValue(cookieStore.get(SESSION_COOKIE_NAME)?.value);
+  if (!session) return null;
+
+  return (
+    <nav className="auth-nav">
+      {session.role === "admin" && <a href="/admin">painel</a>}
+      <LogoutButton />
+    </nav>
+  );
+}
 
 export default function RootLayout({
   children,
@@ -21,6 +37,7 @@ export default function RootLayout({
         />
       </head>
       <body>
+        <AuthNav />
         {children}
         <Analytics />
       </body>
