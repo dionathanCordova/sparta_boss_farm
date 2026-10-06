@@ -15,13 +15,21 @@ export async function handleProximos(store, now) {
   const expanded = bosses.flatMap((b) =>
     b.fixedSchedule ? expandFixedSchedule(b, FIXED_SCHEDULE_LOOKAHEAD) : [b]
   );
+  const byTime = (a, b) => new Date(a.spawnAt).getTime() - new Date(b.spawnAt).getTime();
   const upcoming = expanded
     .filter((b) => new Date(b.spawnAt).getTime() - now.getTime() > 0)
-    .sort((a, b) => new Date(a.spawnAt).getTime() - new Date(b.spawnAt).getTime())
+    .sort(byTime)
     .slice(0, 15);
+  // Fixed-schedule bosses are advanced automatically, so a past spawnAt only
+  // means "nobody updated the respawn yet" for the manually tracked ones.
+  const stale = bosses
+    .filter((b) => !b.fixedSchedule && new Date(b.spawnAt).getTime() - now.getTime() <= 0)
+    .sort(byTime);
 
-  const description = upcoming.length
-    ? upcoming.map((b) => bossLine(b, now)).join("\n")
+  // Stale ones go first: they're already due, the rest follow by time.
+  const lines = [...stale, ...upcoming];
+  const description = lines.length
+    ? lines.map((b) => bossLine(b, now)).join("\n")
     : "Nenhum boss com horário futuro definido ainda.";
 
   return { embeds: [{ title: "⏳ Próximos a nascer", description, color: EMBED_COLOR }] };

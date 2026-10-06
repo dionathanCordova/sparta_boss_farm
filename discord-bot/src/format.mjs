@@ -30,6 +30,19 @@ export function fmtSpawnAt(d, today) {
   return `${dayLabel} ${spTime.format(d)}`;
 }
 
+const spDayMonth = new Intl.DateTimeFormat("pt-BR", {
+  day: "2-digit",
+  month: "2-digit",
+  timeZone: SP_TIME_ZONE,
+});
+
+// For a spawn time that already passed: "hoje 18:00" or "30/09 18:00".
+export function fmtPastAt(d, today) {
+  const sameDay = spDate.format(d) === spDate.format(today);
+  const dayLabel = sameDay ? "hoje" : spDayMonth.format(d);
+  return `${dayLabel} ${spTime.format(d)}`;
+}
+
 export function fmtEta(ms) {
   if (ms <= 0) return null;
   const totalSec = Math.floor(ms / 1000);
@@ -40,7 +53,7 @@ export function fmtEta(ms) {
 }
 
 export function statusFor(ms) {
-  if (ms <= 0) return { cls: "safe", label: "disponível" };
+  if (ms <= 0) return { cls: "safe", label: "respawn pendente" };
   if (ms <= 60 * 60 * 1000) return { cls: "urgent", label: "em breve" };
   if (ms <= 3 * 60 * 60 * 1000) return { cls: "soon", label: "aproximando" };
   return { cls: "safe", label: "programado" };
@@ -68,7 +81,11 @@ export function parseDurationToMinutes(input) {
 
 export function bossLine(boss, now) {
   const spawnMs = new Date(boss.spawnAt).getTime() - now.getTime();
-  const eta = fmtEta(spawnMs) ?? "disponível agora";
+  if (spawnMs <= 0) {
+    const was = fmtPastAt(new Date(boss.spawnAt), now);
+    return `⚠️ **${boss.name}** (${boss.server}) — respawn já passou (era ${was}) · vivo ou novo respawn pendente`;
+  }
+  const eta = fmtEta(spawnMs);
   const at = fmtSpawnAt(new Date(boss.spawnAt), now);
   const st = statusFor(spawnMs);
   const emoji = st.cls === "urgent" ? "🔴" : st.cls === "soon" ? "🟡" : "🟢";

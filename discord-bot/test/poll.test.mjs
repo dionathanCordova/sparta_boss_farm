@@ -66,7 +66,7 @@ describe("createVoicePoller", () => {
     expect(speak).toHaveBeenCalledWith({
       channelId: "c1",
       guildId: "g1",
-      text: "Fala Galeraaa... Kundum nasceu agora no Server 1!",
+      text: "Aí meu deus du céu... Kundum nasceu agora no Server 1!",
     });
   });
 
@@ -158,8 +158,8 @@ describe("createVoicePoller", () => {
   });
 
   it("keeps polling the remaining bosses when one announcement fails", async () => {
-    const a = { ...justSpawned(), id: "a", name: "A" };
-    const b = { ...justSpawned(), id: "b", name: "B" };
+    const a = { ...justSpawned(), id: "a", name: "Alpha" };
+    const b = { ...justSpawned(), id: "b", name: "Beta" };
     const store = fakeStore([a, b]);
     const speak = vi.fn(async ({ text }) => {
       if (text.includes(a.name)) throw new Error("voice ws closed");
@@ -206,7 +206,7 @@ describe("createVoicePoller", () => {
     expect(speak).toHaveBeenCalledWith({
       channelId: "c1",
       guildId: "g1",
-      text: "Fala Galeraaa... Medusa nasceu agora no Server 1, Server 2 e Server 3!",
+      text: "Aí meu deus du céu... Medusa nasceu agora no Server 1, Server 2 e Server 3!",
     });
     expect(store.updateBoss).toHaveBeenCalledTimes(3);
     for (const m of medusas) {

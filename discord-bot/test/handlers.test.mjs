@@ -27,9 +27,11 @@ describe("handleProximos", () => {
     ]);
     const res = await handleProximos(store, now);
     const lines = res.embeds[0].description.split("\n");
-    expect(lines).toHaveLength(2);
-    expect(lines[0]).toContain("B");
-    expect(lines[1]).toContain("A");
+    expect(lines).toHaveLength(3);
+    expect(lines[0]).toContain("**C**");
+    expect(lines[0]).toContain("respawn já passou (era 31/12");
+    expect(lines[1]).toContain("**B**");
+    expect(lines[2]).toContain("**A**");
   });
 
   it("caps the list at 15 even with more future bosses", async () => {
