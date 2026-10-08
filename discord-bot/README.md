@@ -22,6 +22,8 @@ process on Railway — it cannot run on Vercel (see
      Channel ID (enable Developer Mode in Discord settings first).
    - `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` — same values as
      the Vercel project's environment variables.
+   - `DISCORD_PHRASE_PREFIX` (optional) — opening of the spawn/warn
+     announcements. Defaults to `Aí meu deus du céu...`.
 3. `npm install`
 4. `npm run register:commands` — registers the 3 slash commands.
 5. `npm start` — logs in and starts polling for spawn/warn events.

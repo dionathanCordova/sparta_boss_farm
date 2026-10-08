@@ -4,16 +4,23 @@ function formatServers(servers) {
   return `${servers.slice(0, -1).join(", ")} e ${servers[servers.length - 1]}`;
 }
 
+const DEFAULT_PHRASE_PREFIX = "Aí meu deus du céu...";
+
+// Opening of every announcement; override with DISCORD_PHRASE_PREFIX.
+function phrasePrefix() {
+  return process.env.DISCORD_PHRASE_PREFIX?.trim() || DEFAULT_PHRASE_PREFIX;
+}
+
 // boss.servers (plural, for a boss spawning on several servers at once — see
 // evaluateGroup) takes priority; falls back to the single boss.server field.
 export function buildWarnPhrase(boss, minutesLeft) {
   const where = formatServers(boss.servers ?? [boss.server]);
-  return `Aí meu deus du céu... ${boss.name} nasce em ${minutesLeft} minutos no ${where}.`;
+  return `${phrasePrefix()} ${boss.name} nasce em ${minutesLeft} minutos no ${where}.`;
 }
 
 export function buildSpawnPhrase(boss) {
   const where = formatServers(boss.servers ?? [boss.server]);
-  return `Aí meu deus du céu... ${boss.name} nasceu agora no ${where}!`;
+  return `${phrasePrefix()} ${boss.name} nasceu agora no ${where}!`;
 }
 
 // How long after a spawn we're still willing to say "nasceu agora". Past
